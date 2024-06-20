@@ -164,7 +164,8 @@ namespace PN_DelayWPF
             ts1 = DateTime.Now - dt1;
             dt1 = DateTime.Now;
             var map = checkBox1.Dispatcher.Invoke(() => checkBox1.IsChecked);
-            if (map == true & timerGap.Enabled)
+            //if (map == true)
+            if (map == true & !timerGap.Enabled)
             {
                 device2?.SendPacket(e.Data);
                 cnt1++;
