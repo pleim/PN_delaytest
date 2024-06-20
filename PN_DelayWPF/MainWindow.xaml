@@ -1,0 +1,53 @@
+﻿<Window x:Class="PN_DelayWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PN_DelayWPF"
+        mc:Ignorable="d"
+        Title="Lose packets" Height="450" Width="680" Closing="Window_Closing">
+    <Grid>
+        <ComboBox x:Name="comboBoxIF1" HorizontalAlignment="Left" Margin="20,44,0,0" VerticalAlignment="Top" Width="300" IsEnabled="False" SelectionChanged="comboBoxIF_SelectionChanged"/>
+        <ComboBox x:Name="comboBoxIF2" HorizontalAlignment="Left" Margin="340,44,0,0" VerticalAlignment="Top" Width="300" IsEnabled="False" SelectionChanged="comboBoxIF_SelectionChanged"/>
+        <Button x:Name="buttonIF" Content="Refresh interfaces" HorizontalAlignment="Left" Margin="20,304,0,0" VerticalAlignment="Top" Height="35" Width="120" Click="buttonIF_Click"/>
+        <Button x:Name="buttonOpen" Content="Open interfaces" HorizontalAlignment="Left" Margin="160,304,0,0" VerticalAlignment="Top" Height="35" Width="120" Click="buttonOpen_Click" IsEnabled="False"/>
+        <Button x:Name="buttonClose" Content="Close interfaces" HorizontalAlignment="Left" Margin="300,304,0,0" VerticalAlignment="Top" Height="35" Width="120" Click="buttonClose_Click" IsEnabled="False"/>
+        <TextBox x:Name="textBoxFilter1" HorizontalAlignment="Left" Margin="20,105,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="300"/>
+        <TextBox x:Name="textBoxFilter2" HorizontalAlignment="Left" Margin="340,105,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="300"/>
+        <Label Content="Filter (e.g. ether src 00:00:...)" HorizontalAlignment="Left" Margin="20,79,0,0" VerticalAlignment="Top"/>
+        <Label Content="Filter" HorizontalAlignment="Left" Margin="340,79,0,0" VerticalAlignment="Top"/>
+        <Label Content="Interface 1" HorizontalAlignment="Left" Margin="20,18,0,0" VerticalAlignment="Top"/>
+        <Label Content="Interface 2" HorizontalAlignment="Left" Margin="340,18,0,0" VerticalAlignment="Top"/>
+        <ProgressBar x:Name="progress1" HorizontalAlignment="Left" Height="10" Margin="20,144,0,0" VerticalAlignment="Top" Width="300" Maximum="300"/>
+        <ProgressBar x:Name="progress2" HorizontalAlignment="Left" Height="10" Margin="340,144,0,0" VerticalAlignment="Top" Width="300" Maximum="300"/>
+        <CheckBox x:Name="checkBox1" Content="1 -> 2" IsChecked="True" HorizontalAlignment="Left" Margin="20,179,0,0" VerticalAlignment="Top"/>
+        <CheckBox x:Name="checkBox2" Content="1 &lt;- 2" IsChecked="True" HorizontalAlignment="Left" Margin="340,179,0,0" VerticalAlignment="Top"/>
+        <Label Content="Interval [s]" HorizontalAlignment="Left" Margin="22,218,0,0" VerticalAlignment="Top"/>
+        <Label Content="Gap [ms]" HorizontalAlignment="Left" Margin="160,218,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="textBoxInterval" HorizontalAlignment="Left" Margin="20,244,0,0"  VerticalAlignment="Top" Width="75" Text="10" HorizontalContentAlignment="Center"/>
+        <TextBox x:Name="textBoxGap" HorizontalAlignment="Left" Margin="160,244,0,0" VerticalAlignment="Top" Width="75" Text="300" HorizontalContentAlignment="Center"/>
+        <StatusBar VerticalAlignment="Bottom"  >
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem x:Name="lblStatusIF1" Grid.Column="0" HorizontalAlignment="Center" Content=""/>
+            <Separator Grid.Column="0" Width="1" HorizontalAlignment="Right"/>
+            <StatusBarItem x:Name="lblStatusIF2" Grid.Column="1" HorizontalAlignment="Center"/>
+            <Separator Grid.Column="1" Width="1" HorizontalAlignment="Right"/>
+            <StatusBarItem x:Name="lblStatusCnt1" Grid.Column="2" HorizontalAlignment="Center"/>
+            <Separator Grid.Column="2" Width="1" HorizontalAlignment="Right"/>
+            <StatusBarItem x:Name="lblStatusCnt2" Grid.Column="3" HorizontalAlignment="Center"/>
+        </StatusBar>
+        <Ellipse x:Name="rectGap" HorizontalAlignment="Left" Height="15" Margin="220,224,0,0" Stroke="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" VerticalAlignment="Top" Width="15"/>
+        <Label x:Name="lblIntervalCnt" HorizontalAlignment="Left" Margin="110,240,0,0" VerticalAlignment="Top" Content="-"/>
+    </Grid>
+</Window>
