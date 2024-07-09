@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -22,10 +23,10 @@ namespace PN_DelayWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        static LibPcapLiveDevice device1, device2;
+        static LibPcapLiveDevice? device1, device2;
         static System.Timers.Timer timer = new(1000), timerGap = new(100);
         static int cnt1, cnt2, interval;
-        //static bool gap = false;
+        static List<RawCapture> buffer = new List<RawCapture>();        
         static DateTime dt1, dt2;
         static TimeSpan ts1, ts2;
 
@@ -41,10 +42,9 @@ namespace PN_DelayWPF
         }
 
         private void Timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
-        {
-            //if (!(device1 as LibPcapLiveDevice).Opened | !(device2 as LibPcapLiveDevice).Opened) { return; }
-            Dispatcher.Invoke(() => lblStatusIF1.Content = $"IF1:   {device1.Statistics.ReceivedPackets}");
-            Dispatcher.Invoke(() => lblStatusIF2.Content = $"IF2:   {device2.Statistics.ReceivedPackets}");
+        {            
+            Dispatcher.Invoke(() => lblStatusIF1.Content = $"IF1:   {device1?.Statistics.ReceivedPackets}");
+            Dispatcher.Invoke(() => lblStatusIF2.Content = $"IF2:   {device2?.Statistics.ReceivedPackets}");
             Dispatcher.Invoke(() => lblStatusCnt1.Content = $"1>2:   {cnt1}");
             Dispatcher.Invoke(() => lblStatusCnt2.Content = $"1<2:   {cnt2}");
             Dispatcher.Invoke(() => progress1.Value = ts1.Milliseconds);
@@ -164,11 +164,48 @@ namespace PN_DelayWPF
             ts1 = DateTime.Now - dt1;
             dt1 = DateTime.Now;
             var map = checkBox1.Dispatcher.Invoke(() => checkBox1.IsChecked);
-            //if (map == true)
-            if (map == true & !timerGap.Enabled)
+            var disc = checkBox_Discard.Dispatcher.Invoke(() => checkBox_Discard.IsChecked);
+            var buff = checkBox_Buffer.Dispatcher.Invoke(() => checkBox_Buffer.IsChecked);
+            var dist = checkBox_Distort.Dispatcher.Invoke(() => checkBox_Distort.IsChecked);
+            int byteindex = textBoxByte.Dispatcher.Invoke(() => Int16.Parse(textBoxByte.Text));
+            RawCapture capture = e.GetPacket();
+            if (map == null) return;
+            
+            if (disc == false & dist == false & buff == false)          // no option selected
             {
-                device2?.SendPacket(e.Data);
+                device2?.SendPacket(capture.Data);
                 cnt1++;
+            }
+            else if (dist == true & byteindex < capture.PacketLength)   // Distort package content...
+            {                
+                byte b = capture.Data[byteindex];
+                if (timerGap.Enabled) capture.Data[byteindex] = (byte)~b;
+                device2?.SendPacket(capture.Data);
+                cnt1++;
+            }
+            else if (disc == true & !timerGap.Enabled)                  // Discard packets during gap
+            {
+                device2?.SendPacket(capture.Data);
+                cnt1++;
+            }            
+            else if (buff == true)                                      // Store packets during gap and send buffer
+            {
+                if (timerGap.Enabled)
+                {
+                    if(buffer.Count < 1000) buffer.Add(capture);
+                }
+                else
+                {
+                    foreach (var packet in buffer)
+                    {
+                        device2?.SendPacket(packet.Data);
+                        cnt1++;
+                    }
+                    buffer.Clear();
+
+                    device2?.SendPacket(capture.Data);
+                    cnt1++;
+                }
             }
         }
 
