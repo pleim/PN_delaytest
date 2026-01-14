@@ -42,14 +42,18 @@ namespace PN_DelayWPF
         }
 
         private void Timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
-        {            
+        {
+            // Update GUI
             Dispatcher.Invoke(() => lblStatusIF1.Content = $"IF1:   {device1?.Statistics.ReceivedPackets}");
             Dispatcher.Invoke(() => lblStatusIF2.Content = $"IF2:   {device2?.Statistics.ReceivedPackets}");
             Dispatcher.Invoke(() => lblStatusCnt1.Content = $"1>2:   {cnt1}");
             Dispatcher.Invoke(() => lblStatusCnt2.Content = $"1<2:   {cnt2}");
+            Dispatcher.Invoke(() => lblStatusBuffer.Content = $"BUF:   {buffer.Count}");
             Dispatcher.Invoke(() => progress1.Value = ts1.Milliseconds);
             Dispatcher.Invoke(() => progress2.Value = ts2.Milliseconds);
             Dispatcher.Invoke(() => lblIntervalCnt.Content = interval);
+
+
             interval++;
             short i = 10;
             string stri = "10";
@@ -61,11 +65,24 @@ namespace PN_DelayWPF
                 timerGap.Start();
                 Dispatcher.Invoke(() => rectGap.Fill = Brushes.Blue);
             }
+
+
         }
 
         private void TimerGap_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
         {            
+            // Update GUI
             Dispatcher.Invoke(() => rectGap.Fill = null);
+
+            // Send buffered packets if any
+            if (device2?.Opened == true) { 
+                foreach (var packet in buffer)
+                {
+                    device2?.SendPacket(packet.Data);
+                    cnt1++;
+                }
+            }
+            buffer.Clear();
         }
 
         private void buttonIF_Click(object sender, RoutedEventArgs e)
@@ -196,13 +213,6 @@ namespace PN_DelayWPF
                 }
                 else
                 {
-                    foreach (var packet in buffer)
-                    {
-                        device2?.SendPacket(packet.Data);
-                        cnt1++;
-                    }
-                    buffer.Clear();
-
                     device2?.SendPacket(capture.Data);
                     cnt1++;
                 }
